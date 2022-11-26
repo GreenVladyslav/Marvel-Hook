@@ -8,10 +8,10 @@ import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
 class RandomChar extends Component {
-    constructor(props) {
-        super(props);
-        this.updateChar();
-    }
+    // constructor(props) { теперь констркутор бесполезен он не нужен так как есть componentDidMount
+    //     super(props);
+    //     // this.updateChar();
+    // }
 /* это синтаксис поля классов тоже самое будет this.state = {....} */
     state = { /* теперь нужно данные полуить от сервера */ 
         char: {},
@@ -21,10 +21,26 @@ class RandomChar extends Component {
 
     marvelService = new MarvelService(); /* this.marvelService  (получаестя новое свойство без const) синтаксис полей классов*/
 
+    componentDidMount() {
+        this.updateChar();
+        // this.timerId = setInterval(this.updateChar, 10000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timerId);
+    }
+
     onCharLoaded = (char) => { /* если персонаж загрузился */
-        this.setState({char,
-             loading: false /* !!!компонент загрузился, спиннер пропал */
+        this.setState({
+            char,
+            loading: false /* !!!компонент загрузился, спиннер пропал */
         });/* (char: char) сокращение */
+    }
+
+    onCharLoading = () => {
+        this.setState({
+            loading: true /* при клике на try it теперь крутится спиннер показывая загрузку */
+        })
     }
 
     onError = () => { /* ошибка в запросе 401, 404 */
@@ -36,6 +52,7 @@ class RandomChar extends Component {
 
     updateChar = () => { /* при каждом создание компонента, создаем нового случайного персонажа */
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000); /* случайно число в нужном диапозоне */
+        this.onCharLoading();
         this.marvelService
             // .getAllCharacters()
             // .then(res => console.log(res));
@@ -72,7 +89,7 @@ class RandomChar extends Component {
                     <p className="randomchar__title">
                         Or choose another one
                     </p>
-                    <button className="button button__main">
+                    <button onClick={this.updateChar} className="button button__main">
                         <div className="inner">try it</div>
                     </button>
                     <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
@@ -86,9 +103,12 @@ const View = ({char}) => { /* Это простой render -ющий компо�
 
     const {name, description, thumbnail, homepage, wiki} = char;
 
+    const imageNotFound = 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'
+    const imgStyle = thumbnail === imageNotFound ? {objectFit: 'contain'} : {objectFit: 'cover'};
+
     return(
         <div className="randomchar__block">
-            <img src={thumbnail} alt="Random character" className="randomchar__img"/>
+            <img src={thumbnail} alt="Random character" className='randomchar__img' style={imgStyle}/>
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
                 <p className="randomchar__descr">
@@ -108,3 +128,7 @@ const View = ({char}) => { /* Это простой render -ющий компо�
 }
 
 export default RandomChar;
+
+
+// 1.Сдлеать запрос на сервер, получить 9 персонажей и построить на этих данных интерфейс
+// не особо отличается от компонента randomChar, проставить id всех персонажей

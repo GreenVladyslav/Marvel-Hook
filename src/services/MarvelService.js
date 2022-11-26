@@ -26,6 +26,7 @@ class MarvelService {
     /* будем получать какие-то данные и уже возвращать трансформированный обьект  */
     _transformCharacter = (char) => { /* с loudash чтобы другой программист не вносил поправки(или был максимально оккуратен) */
         return { /* char - Один персонаж) */
+            id: char.id,
             name: char.name,
             description: char.description ? `${char.description.slice(0, 200)}...` : `Sorry, we dont have a description for ${char.name}`,
             thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,
