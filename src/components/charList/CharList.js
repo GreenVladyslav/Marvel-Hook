@@ -10,17 +10,8 @@ class CharList extends Component {
     state = {
         charList: [],
         loading: true,
-        error: false,
-        isHover: false,
-        setIsHover: false
+        error: false
     }
-
-    handleMouseEnter = (isHover) => {
-        this.setState({isHover});
-    };
-    handleMouseLeave = (setIsHover) => {
-        this.setState({setIsHover})
-    };
 
     marvelService = new MarvelService();
     
@@ -46,53 +37,46 @@ class CharList extends Component {
 
     // Этот метод создан для оптимизации, 
     // чтобы не помещать такую конструкцию в метод render
-    // renderItems(arr) {
+    renderItems(arr) {
 
-    //     const elements = arr.map((item) => {
-    //         const imageNotFound = 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'
-    //         const styleFit = item.thumbnail === imageNotFound ? {objectFit: 'contain'} : {objectFit: 'cover'};
+        const elements = arr.map((item) => {
+            const imageNotFound = 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'
+            const styleFit = item.thumbnail === imageNotFound ? {objectFit: 'contain'} : {objectFit: 'cover'};
         
-    //         return(
-    //             <li className='char__item'
-    //                 key={item.id}>
-    //                 <img src={item.thumbnail} alt={item.name} style={styleFit}/>
-    //                 <div className="char__name">{item.name}</div>
-    //             </li>
-    //         )
-    //     });
-    //     // А эта конструкция вынесена для центровки спиннера/ошибки
-    //     return (
-    //         <ul className="char__grid">
-    //             {elements}
-    //         </ul>
-    //     )
-    // }
-
-    // Этот метод создан для оптимизации, МОЙ МЕТОД для каждоый карточки
-    renderItems(charList) {
-        
-        const elements = charList.map(item => {
-            const {id, ...itemProps} = item
-
-            const imgHover = {boxShadow: '0 5px 20px $main-color', transform: 'translateY(-8px)'}
-            const clazz = this.isHover ? imgHover : ''
-            // const clazz = this.isHover ? 'char__item char__item_selected' : 'char__item';
-            return (
-                <Character key={id}
-                    {...itemProps}
-                    // style={this.isHover ? imgHover : ''}
-                    style={clazz}
-                    onMouseEnter={this.handleMouseEnter}
-                    onMouseLeave={this.handleMouseLeave}/>
+            return(
+                <li className='char__item'
+                    key={item.id}
+                    onClick={() => this.props.onCharSelected(item.id)}>
+                    <img src={item.thumbnail} alt={item.name} style={styleFit}/>
+                    <div className="char__name">{item.name}</div>
+                </li>
             )
-        })
-// А эта конструкция вынесена для центровки спиннера/ошибки
-        return(
+        });
+        // А эта конструкция вынесена для центровки спиннера/ошибки
+        return (
             <ul className="char__grid">
                 {elements}
             </ul>
         )
     }
+
+    // Этот метод создан для оптимизации, МОЙ МЕТОД для каждоый карточки
+//     renderItems(charList) {
+        
+//         const elements = charList.map(item => {
+//             const {id, ...itemProps} = item;
+//             return (
+//                 <Character key={id}
+//                     {...itemProps}/>
+//             )
+//         })
+// // А эта конструкция вынесена для центровки спиннера/ошибки
+//         return(
+//             <ul className="char__grid">
+//                 {elements}
+//             </ul>
+//         )
+//     }
 
     
     render() {
@@ -121,17 +105,17 @@ class CharList extends Component {
 
 export default CharList;
 
-const Character = (charList) => {
+// const Character = (charList) => {
 
-    const {name, thumbnail} = charList;
+//     const {name, thumbnail} = charList;
 
-    const imageNotFound = 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'
-    const styleFit = thumbnail === imageNotFound ? {objectFit: 'contain'} : {objectFit: 'cover'};
+//     const imageNotFound = 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'
+//     const styleFit = thumbnail === imageNotFound ? {objectFit: 'contain'} : {objectFit: 'cover'};
 
-    return (
-        <li className='char__item'>
-            <img src={thumbnail} alt={name} style={styleFit}/>
-            <div className="char__name">{name}</div>
-        </li>
-    )
-}
+//     return (
+//         <li className='char__item'>
+//             <img src={thumbnail} alt={name} style={styleFit}/>
+//             <div className="char__name">{name}</div>
+//         </li>
+//     )
+// }
