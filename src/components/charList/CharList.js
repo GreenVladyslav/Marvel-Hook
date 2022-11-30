@@ -9,23 +9,49 @@ class CharList extends Component {
 
     state = {
         charList: [],
-        loading: true,
-        error: false
+        loading: true, /* при загрузке первых 9 персонажей true */
+        error: false,
+        newItemLoading: false,/* ! */
+        offset: 210,
+        charEnded: false
     }
 
     marvelService = new MarvelService();
     
-    componentDidMount() {  /* updateAllCharacter вызываем тут главную*/
-        this.marvelService.getAllCharacters()
-            .then(this.onCharListLoaded)
+    componentDidMount() { 
+        this.onRequest(); /* вызывается этот метод без какого либо аргумента */
+        // this.marvelService.getAllCharacters()
+        //     .then(this.onCharListLoaded)
+        //     .catch(this.onError)
+    }
+
+    onRequest = (offset) => {/* ! */ /* offset = null */
+        this.onCharListLoading(); /* при первой загрузке state переключится в true  и это нормально*/
+        this.marvelService.getAllCharacters(offset) /* передаем какой-то отступ */
+            .then(this.onCharListLoaded) /* !!получает новый массив с новыми персонажами */
             .catch(this.onError)
     }
 
-    onCharListLoaded = (charList) => {
+    onCharListLoading = () => {/* ! */ /* загружается */
         this.setState({
-            charList,
-            loading: false
-        });
+            newItemLoading: true
+        })
+    }
+
+    onCharListLoaded = (newCharList) => { /* ! */ /* !!получает новый массив с новыми персонажами */
+        let ended = false;
+        if (newCharList.length < 9) { /* если меньше 9 то скорее пустой массив и закончились дааные */
+            ended = true;
+        }
+
+            /* ({ скобки значат что мы возвращаем обьект из этой функции */
+        this.setState(({offset, charList}) => ({/* когда наши данные загрузились то 9 + 9, 18 + 9 */
+            charList: [...charList, ...newCharList], /* charList = санчала пустой потом 9 персонажей потом 18 и далеее */
+            loading: false,
+            newItemLoading: false, /* когда персонажи загрузили то переключим в false */
+            offset: offset + 9,
+            charEnded: ended
+        }))
     }
 
     onError = () => {
@@ -47,8 +73,8 @@ class CharList extends Component {
                 <li className='char__item'
                     key={item.id}
                     onClick={() => this.props.onCharSelected(item.id)}>
-                    <img src={item.thumbnail} alt={item.name} style={styleFit}/>
-                    <div className="char__name">{item.name}</div>
+                        <img src={item.thumbnail} alt={item.name} style={styleFit}/>
+                        <div className="char__name">{item.name}</div>
                 </li>
             )
         });
@@ -81,7 +107,7 @@ class CharList extends Component {
     
     render() {
 
-        const {charList, loading, error} = this.state;
+        const {charList, loading, error, offset, newItemLoading, charEnded} = this.state;
 
         const elements = this.renderItems(charList);
 
@@ -95,7 +121,11 @@ class CharList extends Component {
                     {errorMessage}
                     {spinner}
                     {content}
-                <button className="button button__main button__long">
+                <button 
+                    className="button button__main button__long"
+                    disabled={newItemLoading}/* ! */ /* либо true. false */
+                    style={{'display': charEnded ? 'none' : 'block'}}
+                    onClick={() => this.onRequest(offset)}>
                     <div className="inner">load more</div>
                 </button>
             </div>

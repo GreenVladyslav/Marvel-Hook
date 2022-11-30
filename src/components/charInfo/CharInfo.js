@@ -44,9 +44,7 @@ class CharInfo extends Component {
         this.marvelService
             .getSingleCharacter(charId) /* когда к нам приедет обьект с одним персонажем он попадет ниже */
             .then(this.onCharLoaded) /* он попадет сюда */
-            .catch(this.onError) /* если ошибка то сюда */
-        
-        this.foo.bar = 0;
+            .catch(this.onError) /* если ошибка то сюда */     
     }
 
     onCharLoaded = (char) => {  /* он попадет сюда в качестве аргумента состояния и запишется сюда*/

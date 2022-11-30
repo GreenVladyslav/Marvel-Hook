@@ -7,6 +7,10 @@ class ErrorBoundary extends Component {
         error: false
     }
 
+    // static getDerivedStateFromProps(error) {
+    //     return {error: true}; /* просто меняет состояние */
+    // }/* если надо что-то по круче то используем  componentDidCatch*/
+
     componentDidCatch(error, errorInfo) {
         console.log(error, errorInfo);
         this.setState({
