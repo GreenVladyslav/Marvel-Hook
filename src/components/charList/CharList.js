@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+// Главное не забудьте отписываться от таймаута и ставить зависимости в useEffect чтобы не попасть в бесконечный цикл и не исчерпать лемиты на запросы API
+// и не забывайте про порядок работы функциональных компонентов, что зачем запускается это поможет справится с ошибками если они будут
 
+// CharInfo. rendomChar   Д.З
 import PropTypes from 'prop-types';
 
 import Spinner from '../spinner/Spinner';

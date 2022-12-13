@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
 import PropTypes from 'prop-types';
 
@@ -9,83 +9,66 @@ import MarvelService from '../../services/MarvelService';
 
 import './charInfo.scss';
 
-class CharInfo extends Component {
+const CharInfo = (props) => {
 
-    state = {
-        char: null,
-        loading: false, /* тут false Так как изначально не должен быть загружен будет скилетон */
-        error: false
-    }
+    const [char, setChar] = useState(null);
+    const [loading, setLoading] = useState(false); /* тут false Так как изначально не должен быть загружен будет скилетон */
+    const [error, setError] = useState(false);
 
-    marvelService = new MarvelService();
+    const marvelService = new MarvelService();
 
-    componentDidMount() { /* вызывается после того как наш компонент был создан на странице и это идеальный момент для того чтобы делать запросы на сервер */
-        this.updateChar(); /* первый раз загрузка будет выдавать null */
-    }
+    useEffect(() => { /* вызывается после того как наш компонент был создан на странице и это идеальный момент для того чтобы делать запросы на сервер */
+        updateChar(); /* первый раз загрузка будет выдавать null */
+    }, [props.charId])
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.charId !== prevProps.charId) {
-            this.updateChar();
-        }
-    } /* срабатывает когда приходит новый props или изменяется state или пренудительная перерисовка компонента */
+    // componentDidCatch(err, info) {
+    //     console.log(err, info);
+    //     this.setState({
+    //         error: true
+    //     })
+    // }
 
-    componentDidCatch(err, info) {
-        console.log(err, info);
-        this.setState({
-            error: true
-        })
-    }
-
-    updateChar = () => { /* когда у нас будет происходить запрос то будем ориентироватьсян на пропс который придет в charId*/
-        const {charId} = this.props;
+    const updateChar = () => { /* когда у нас будет происходить запрос то будем ориентироватьсян на пропс который придет в charId*/
+        const {charId} = props;
         if (!charId) { /* если нету */
             return;
         }
 
-        this.onCharLoading(); /* будет показыватся спиннер загрузки  */
-        this.marvelService
+        onCharLoading(); /* будет показыватся спиннер загрузки  */
+        marvelService
             .getSingleCharacter(charId) /* когда к нам приедет обьект с одним персонажем он попадет ниже */
-            .then(this.onCharLoaded) /* он попадет сюда */
-            .catch(this.onError) /* если ошибка то сюда */     
+            .then(onCharLoaded) /* он попадет сюда */
+            .catch(onError) /* если ошибка то сюда */     
     }
 
-    onCharLoaded = (char) => {  /* он попадет сюда в качестве аргумента состояния и запишется сюда*/
-        this.setState({
-            char,
-            loading: false 
-        });
+    const onCharLoaded = (char) => {  /* он попадет сюда в качестве аргумента состояния и запишется сюда*/
+        setChar(char);
+        setLoading(false);
     }
 
-    onCharLoading = () => {
-        this.setState({
-            loading: true 
-        })
+    const onCharLoading = () => {
+        setLoading(true)
     }
 
-    onError = () => { 
-        this.setState({
-            loading: false, 
-            error: true
-        })
+    const onError = () => { 
+        setLoading(false)
+        setError(true)
     }
 
-    render() {
-        const {char, loading, error} = this.state;
-        /* отобразится один из компоннетов в зависимости от нашего state */
-        const skeleton = char || loading || error ? null : <Skeleton/>;
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error || !char) ? <View char={char}/> : null;
+    /* отобразится один из компоннетов в зависимости от нашего state */
+    const skeleton = char || loading || error ? null : <Skeleton/>;
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
+    const content = !(loading || error || !char) ? <View char={char}/> : null;
 
-        return (
-            <div className="char__info">
-                {skeleton} 
-                {errorMessage}
-                {spinner}
-                {content}
-            </div>
-        )
-    }
+    return (
+        <div className="char__info">
+            {skeleton} 
+            {errorMessage}
+            {spinner}
+            {content}
+        </div>
+    )
 }
 
 const View = ({char}) => {
