@@ -7,35 +7,38 @@ import PropTypes from 'prop-types';
 
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 
 import './charList.scss';
 
 const CharList = (props) => {
 
     const [charList, setCharList] = useState([]);
-    const [loading, setLoading] = useState(true); /* при загрузке первых 9 персонажей true */
-    const [error, setError] = useState(false);
+    // const [loading, setLoading] = useState(true); /* 3 при загрузке первых 9 персонажей true когда только заходим на страницу*/
+    // const [error, setError] = useState(false);
     const [newItemLoading, setNewItemLoading] = useState(false);
     const [offset, setOffset] = useState(210);
     const [charEnded, setCharEnded] = useState(false);
 
-    const marvelService = new MarvelService();
+    const {loading, error, getAllCharacters} = useMarvelService();
     // useEffect запускается уже после рендеринга уже после того как onRequest стрелочная функция сущевствует внутри нашей функции
     useEffect(() => {
-        onRequest(); /* вызывается этот метод без какого либо аргумента */
+        onRequest(offset, true); /* вызывается этот метод без какого либо аргумента */
     }, []); /* пустой массив значит componentDidMount - функция выполнится только один раз при создании вашего компонента */
 
-    const onRequest = (offset) => {/* ! */ /* offset = null */
-        onCharListLoading(); /* при первой загрузке state переключится в true  и это нормально*/
-        marvelService.getAllCharacters(offset) /* передаем какой-то отступ */
+    //если я передем в onRequest(вторым аргументом); initial - если я передам true этому аргументу то я скажу коду что это первичная загрузка, это значит что это свойство newItemLoading(оно так и должно стоять false) нам не нужно его активировать
+    // но если идет повторная загрузка у нас initial = false То я состояние буду устанавливать в setNewItemLoading(true)
+    const onRequest = (offset, initial) => {/* ! */ /* offset = null */
+        initial ? setNewItemLoading(false) : setNewItemLoading(true)
+        // onCharListLoading(); /* 3 при первой загрузке state переключится в true  и это нормально*/
+        getAllCharacters(offset) /* передаем какой-то отступ */
             .then(onCharListLoaded) /* !!получает новый массив с новыми персонажами */
-            .catch(onError)
+            // .catch(onError)
     }
 
-    const onCharListLoading = () => {/* ! */ /* загружается */
-        setNewItemLoading(true);
-    }
+    // const onCharListLoading = () => {/* ! */ /* загружается */
+    //     setNewItemLoading(true);
+    // } тепреь это бесполезный метод 3
 
     const onCharListLoaded = (newCharList) => { /* ! */ /* !!получает новый массив с новыми персонажами */
         let ended = false;
@@ -44,16 +47,16 @@ const CharList = (props) => {
         }
 
         setCharList(charList => [...charList, ...newCharList]); /* callback функция для того чтобы соблюдать последовательность нашего state */ /* charList = санчала пустой потом 9 персонажей потом 18 и далеее */
-        setLoading(loading => false);
+        // setLoading(loading => false); 3
         setNewItemLoading(newItemLoading => false); /* соблюдаем последователность State */
         setOffset(offset => offset + 9); /* вот здесь мы отталкиваемся от предыдущего состояния */ /* когда персонажи загрузили то переключим в false */
         setCharEnded(charEnded => ended);
     }
 
-    const onError = () => {
-        setLoading(loading => loading = false)
-        setError(true)
-    }
+    // const onError = () => { 3
+    //     setLoading(loading => loading = false)
+    //     setError(true)
+    // }
 
     const itemRefs = useRef([]); /* current -ссылка на дом элемент */
 
@@ -100,24 +103,6 @@ const CharList = (props) => {
         )
     }
 
-    // Этот метод создан для оптимизации, МОЙ МЕТОД для каждоый карточки
-//     renderItems(charList) {
-        
-//         const elements = charList.map(item => {
-//             const {id, ...itemProps} = item;
-//             return (
-//                 <Character key={id}
-//                     {...itemProps}/>
-//             )
-//         })
-// // А эта конструкция вынесена для центровки спиннера/ошибки
-//         return(
-//             <ul className="char__grid">
-//                 {elements}
-//             </ul>
-//         )
-//     }
-
     
     // эта строчка уже не нужна так как наши переменные уже есть внутри функции
     // const {charList, loading, error, offset, newItemLoading, charEnded} = this.state;
@@ -125,15 +110,17 @@ const CharList = (props) => {
     const elements = renderItems(charList);
 
     const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner/> : null;
-    const content = !(loading || error) ? elements : null;
+    const spinner = loading && !newItemLoading ? <Spinner/> : null;
+    // У менять есть загрузка но при этом это не загрузка новых персонажей (сложно) и теперь спинер будет грузится один раз
+    // const content = !(loading || error) ? elements : null; 3 убираю чтобы не было переРендеринга в функциональном компоннете это же не класс  (Null сначала )
+    /* условие не обязательное можно и на прямую поместить блок (как мы и сделаем) */
     // const content = errorMessage || spinner || <View char={char} />
 
-    return (
+    return ( 
         <div className="char__list">
                 {errorMessage}
                 {spinner}
-                {content}
+                {elements}
             <button 
                 className="button button__main button__long"
                 disabled={newItemLoading}/* ! */ /* либо true. false */
@@ -150,18 +137,3 @@ CharList.propTypes = {
 }
 
 export default CharList;
-
-// const Character = (charList) => {
-
-//     const {name, thumbnail} = charList;
-
-//     const imageNotFound = 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg'
-//     const styleFit = thumbnail === imageNotFound ? {objectFit: 'contain'} : {objectFit: 'cover'};
-
-//     return (
-//         <li className='char__item'>
-//             <img src={thumbnail} alt={name} style={styleFit}/>
-//             <div className="char__name">{name}</div>
-//         </li>
-//     )
-// }

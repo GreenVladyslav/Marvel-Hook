@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 
 
 import './randomChar.scss';
@@ -10,10 +10,8 @@ import mjolnir from '../../resources/img/mjolnir.png';
 const RandomChar = () => {
 
     const [char, setChar] = useState(null);
-    const [loading, setLoading] = useState(true); 
-    const [error, setError] = useState(false);
 
-    const marvelService = new MarvelService();
+    const {loading, error, getSingleCharacter, clearError} = useMarvelService();
 
     useEffect(() => {
         updateChar();
@@ -27,38 +25,20 @@ const RandomChar = () => {
 
     const onCharLoaded = (char) => { 
         setChar(char);
-        setLoading(false);
     }
 
-    const onCharLoading = () => {
-        setLoading(true);
-    }
-
-    const onError = () => { 
-        setLoading(false);
-        setError(true);
-    }
 
     const updateChar = () => { /* при каждом создание компонента, создаем нового случайного персонажа */
+        clearError(); /* вызвать эту функцию прямо перед тем как мы делаем каждый новый запрос */
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000); /* случайно число в нужном диапозоне */
-        onCharLoading();
-        marvelService
-            .getSingleCharacter(id) /* getSingleCharacter возвращается уже нужный намо обьект _transformCharacter */
+        
+        getSingleCharacter(id) /* getSingleCharacter возвращается уже нужный намо обьект _transformCharacter */
             .then(onCharLoaded) /* через цепочку промисов аргумент автоматические передается в стояющий метод  */
-            .catch(onError);
     }
-
-    /* свойство char из которого мы вытаскиваем все нужно вот такая деструктуризация */
-    // if (loading) {/* если вдруг идет состояние загрузки то мы будем возвращать этот компонет */
-    //     return  <Spinner/>/* в render первым идет !!return!! поэтому здесь будет остановка */
-    // }
-    // if (description === '') {
-    //     description += `Sorry, we dont have a description for ${name}`;
-    // }
 
     const errorMessage = error ? <ErrorMessage/> : null;
     const spinner = loading ? <Spinner/> : null;
-    const content = !(loading || error) ? <View char={char}/> : null;
+    const content = !(loading || error || !char) ? <View char={char}/> : null;
     // const content = errorMessage || spinner || <View char={char} />
 
     return (

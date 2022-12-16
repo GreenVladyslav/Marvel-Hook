@@ -5,17 +5,15 @@ import PropTypes from 'prop-types';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Skeleton from '../skeleton/Skeleton';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 
 import './charInfo.scss';
 
 const CharInfo = (props) => {
 
     const [char, setChar] = useState(null);
-    const [loading, setLoading] = useState(false); /* тут false Так как изначально не должен быть загружен будет скилетон */
-    const [error, setError] = useState(false);
 
-    const marvelService = new MarvelService();
+    const {loading, error, getSingleCharacter, clearError} = useMarvelService();
 
     useEffect(() => { /* вызывается после того как наш компонент был создан на странице и это идеальный момент для того чтобы делать запросы на сервер */
         updateChar(); /* первый раз загрузка будет выдавать null */
@@ -34,25 +32,13 @@ const CharInfo = (props) => {
             return;
         }
 
-        onCharLoading(); /* будет показыватся спиннер загрузки  */
-        marvelService
-            .getSingleCharacter(charId) /* когда к нам приедет обьект с одним персонажем он попадет ниже */
-            .then(onCharLoaded) /* он попадет сюда */
-            .catch(onError) /* если ошибка то сюда */     
+        clearError();
+        getSingleCharacter(charId) /* когда к нам приедет обьект с одним персонажем он попадет ниже */
+            .then(onCharLoaded) /* он попадет сюда */ 
     }
 
     const onCharLoaded = (char) => {  /* он попадет сюда в качестве аргумента состояния и запишется сюда*/
         setChar(char);
-        setLoading(false);
-    }
-
-    const onCharLoading = () => {
-        setLoading(true)
-    }
-
-    const onError = () => { 
-        setLoading(false)
-        setError(true)
     }
 
     /* отобразится один из компоннетов в зависимости от нашего state */

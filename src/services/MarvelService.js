@@ -1,31 +1,37 @@
-class MarvelService {
-    _apiBase = 'https://gateway.marvel.com:443/v1/public/';  /* с loudash нельзя менять переменные (между нам) */
-    _apiKey = 'apikey=83e623e06da8b05bf8436b9188fdc8e3';
-    _baseOffset = 210;
+import { useHttp } from "../hooks/http.hook";
 
-    getResource = async (url) => {
-        let res = await fetch(url);
-    
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, status ${res.status}`)
-        }
-    
-        return await res.json();
-    }
+const useMarvelService = () => {
 
-    getAllCharacters = async (offset = this._baseOffset) => {
-        const res = await this.getResource(`${this._apiBase}characters?limit=9&offset=${offset}&${this._apiKey}`);
-        return res.data.results.map(this._transformCharacter); /* каждый отдельный обьект будет приходить по порядку */
+    const {loading, request, error, clearError} = useHttp();
+
+    const _apiBase = 'https://gateway.marvel.com:443/v1/public/';  /* с loudash нельзя менять переменные (между нам) */
+    const _apiKey = 'apikey=83e623e06da8b05bf8436b9188fdc8e3';
+    const _baseOffset = 210;
+
+    const getAllCharacters = async (offset = _baseOffset) => {
+        const res = await request(`${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`);
+        return res.data.results.map(_transformCharacter); /* каждый отдельный обьект будет приходить по порядку */
     }
     /* теперь мы данные будем сохранять в переменную(промежуточный результат) */
-    getSingleCharacter = async (id) => {
-        const res = await this.getResource(`${this._apiBase}characters/${id}?${this._apiKey}`);
+    const getSingleCharacter = async (id) => {
+        const res = await request(`${_apiBase}characters/${id}?${_apiKey}`);
         /* это асинхронная функция, здесь результат мы получим не сразу */
-        return this._transformCharacter(res.data.results[0]); /* (res) сокращаем код передаем повторяющееся  */
+        return _transformCharacter(res.data.results[0]); /* (res) сокращаем код передаем повторяющееся  */
         /* вернем в этот метод(готовые красивые, чистые данные) */
     }
+
+    const getAllComics = async (offset = 0) => {
+        const res = await request(`${_apiBase}comics?limit=8&offset=${offset}&${_apiKey}`);
+        return res.data.results.map(_transformComics);
+    }
+
+    const getComics = async (id) => {
+        const res = await request(`${_apiBase}comics/${id}?${_apiKey}`);
+        return _transformComics(res.data.results[0]);
+    }
+
     /* будем получать какие-то данные и уже возвращать трансформированный обьект  */
-    _transformCharacter = (char) => { /* с loudash чтобы другой программист не вносил поправки(или был максимально оккуратен) */
+    const _transformCharacter = (char) => { /* с loudash чтобы другой программист не вносил поправки(или был максимально оккуратен) */
         return { /* char - Один персонаж) */
             id: char.id,
             name: char.name,
@@ -36,9 +42,24 @@ class MarvelService {
             comics: char.comics.items.slice(0, 10)
         }
     }
+
+    const _transformComics = (comics) => {
+        return {
+            id: comics.id,
+            title: comics.title,
+            description: comics.description || 'There is no description for this comics',
+            pageCount: comics.pageCount ? `${comics.pageCount} p.` : 'No information about the number pages',
+            language: comics.textObjects.language || 'en-us',
+            price: comics.prices.price ? `${comics.prices.price}$` : 'not available',
+            thumbnail: comics.thumbnail.path + '.' + comics.thumbnail.extension
+        }
+    }
+
+    // посколько это функция (кастомный хук) мы можем вернуть обьект со всем что мне нужно
+    return {loading, error, clearError, getAllCharacters, getSingleCharacter, getAllComics, getComics}
 }
 
-export default MarvelService;
+export default useMarvelService;
 
 
 
