@@ -1,28 +1,10 @@
-import { useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import AppHeader from "../appHeader/AppHeader";
 
-import AppBanner from "../appBanner/AppBanner"
-
-import RandomChar from "../randomChar/RandomChar";
-import CharList from "../charList/CharList";
-import CharInfo from "../charInfo/CharInfo";
-import ErrorBoundary from "../errorBoundary/ErrorBoundary";
-
-import ComicsList from "../comicsList/ComicsList";
-
-import decoration from '../../resources/img/vision.png';
-
+import { MainPage, ComicsPage} from "../pages";
 
 const App = () => {
-
-    const [selectedChar, setChar] = useState(null)
-
-
-    const onCharSelected = (id) => {
-        setChar(id);
-    }
 
     return (
         <Router>
@@ -30,23 +12,11 @@ const App = () => {
                 <AppHeader/>
                 <main>
                     <Switch>
-                    <Route exact path="/">
-                            <ErrorBoundary>
-                                <RandomChar/>
-                            </ErrorBoundary>
-                            <div className="char__content">
-                                <ErrorBoundary>
-                                    <CharList onCharSelected={onCharSelected}/>
-                                </ErrorBoundary>
-                                <ErrorBoundary>
-                                    <CharInfo charId={selectedChar}/>
-                                </ErrorBoundary>
-                            </div>
-                            <img className="bg-decoration" src={decoration} alt="vision"/>
+                        <Route exact path="/">
+                            <MainPage/>
                         </Route>
                         <Route exact path="/comics">
-                            <AppBanner/>
-                            <ComicsList/>
+                            <ComicsPage/>
                         </Route>
                     </Switch>
                 </main>
@@ -68,3 +38,10 @@ export default App;
 // Композиция - подргузка пользователя или товара 
 
 // или использовать атрибут exact
+
+
+// Как это все работает:
+// Link - это обычная ссылка tag = a c атрибутом href  просто он работает как компонент
+// Из компонентов стоит внимания: a)navLink - делает тоже самое что и сам Link (можно стелизовать)
+// b)Redirect - может перенаправлять страницу по определенному адресу (можно использовать внутри условий) {login ? <Redirect to="/admin"/> : <LoginForm/>}
+// остальные атрибуты не так часто используются
