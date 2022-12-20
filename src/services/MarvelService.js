@@ -25,7 +25,7 @@ const useMarvelService = () => {
         return res.data.results.map(_transformComics);
     }
 
-    const getComics = async (id) => {
+    const getComic = async (id) => {
         const res = await request(`${_apiBase}comics/${id}?${_apiKey}`);
         return _transformComics(res.data.results[0]);
     }
@@ -48,7 +48,7 @@ const useMarvelService = () => {
             id: comics.id,
             title: comics.title,
             description: comics.description || 'There is no description for this comics',
-            pageCount: comics.pageCount ? `${comics.pageCount} p.` : 'No information about the number pages',
+            pageCount: comics.pageCount ? `${comics.pageCount} pages` : 'No information about the number pages',
             language: comics.textObjects.language || 'en-us',
             price: comics.prices.price ? `${comics.prices.price}$` : 'not available',
             thumbnail: comics.thumbnail.path + '.' + comics.thumbnail.extension
@@ -56,7 +56,7 @@ const useMarvelService = () => {
     }
 
     // посколько это функция (кастомный хук) мы можем вернуть обьект со всем что мне нужно
-    return {loading, error, clearError, getAllCharacters, getSingleCharacter, getAllComics, getComics}
+    return {loading, error, clearError, getAllCharacters, getSingleCharacter, getAllComics, getComic}
 }
 
 export default useMarvelService;

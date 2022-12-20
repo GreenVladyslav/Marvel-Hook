@@ -29,12 +29,13 @@
             color: rgba(0, 0, 0, 0.6);
             text-transform: uppercase;
         }
-        // &:hover {
-        //     transform: translateY(-5px);
-        // }
-        &_selected {
+        &:hover {
             box-shadow: 0 5px 20px rgb(255, 179, 0);
             transform: translateY(-8px);
         }
+        // &_selected {
+        //     box-shadow: 0 5px 20px rgb(255, 179, 0);
+        //     transform: translateY(-8px);
+        // }
     }
 }

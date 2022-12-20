@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
 
@@ -11,20 +12,29 @@ import './charInfo.scss';
 
 const CharInfo = (props) => {
 
+    const {comicId} = useParams();
     const [char, setChar] = useState(null);
+    const [comic, setComic] = useState(null)
 
-    const {loading, error, getSingleCharacter, clearError} = useMarvelService();
+    const {loading, error, getSingleCharacter, clearError, getComic} = useMarvelService();
 
     useEffect(() => { /* вызывается после того как наш компонент был создан на странице и это идеальный момент для того чтобы делать запросы на сервер */
         updateChar(); /* первый раз загрузка будет выдавать null */
     }, [props.charId])
 
-    // componentDidCatch(err, info) {
-    //     console.log(err, info);
-    //     this.setState({
-    //         error: true
-    //     })
-    // }
+    useEffect(() => { 
+        updateComic(); 
+    }, [comicId])
+
+    const updateComic = () => { 
+        clearError();
+        getComic(comicId) 
+            .then(onComicLoaded)
+    }
+
+    const onComicLoaded = (comic) => { 
+        setComic(comic);
+    }
 
     const updateChar = () => { /* когда у нас будет происходить запрос то будем ориентироватьсян на пропс который придет в charId*/
         const {charId} = props;
@@ -94,6 +104,12 @@ const View = ({char}) => {
                             <li key={index} className="char__comics-item">
                                 {item.name}
                             </li>
+                            // <Link 
+                            //     className="char__comics-item"
+                            //     to={`/comics/${item.id}`}
+                            //     key={index}>
+                            //         {item.name}
+                            // </Link>
                         )
                     })
                 }
