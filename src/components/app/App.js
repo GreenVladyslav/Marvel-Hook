@@ -1,8 +1,15 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import AppHeader from "../appHeader/AppHeader";
+import Spinner from "../spinner/Spinner"; /* статические импорты */
+// import { MainPage, ComicsPage, SingleComicPage} from "../pages"; 
 
-import { MainPage, ComicsPage, Page404, SingleComicPage} from "../pages";
+const Page404 = lazy(() => import('../pages/404')); /* все динамические импорты идут после статических */
+/* +компонент Suspense чтобы импорт работал ОБЯЗАТЕЛЬНО*/
+const MainPage = lazy(() => import('../pages/MainPage')); /* часто заходят по ссылкам и не на главную страницу */
+const ComicsPage = lazy(() => import('../pages/ComicsPage'));
+const SingleComicPage = lazy(() => import('../pages/SingleComicPage/SingleComicPage'));
 
 const App = () => {
 
@@ -11,12 +18,15 @@ const App = () => {
             <div className="app">
                 <AppHeader/>
                 <main>
-                    <Routes>
-                        <Route path="/" element={<MainPage/>}/>
-                        <Route path="/comics" element={<ComicsPage/>}/>
-                        <Route path="/comics/:comicId" element={<SingleComicPage/>}/>
-                        <Route path="*" element={<Page404/>}/>
-                    </Routes>
+                    <Suspense fallback={<Spinner/>}>
+                        <Routes> {/* <Switch> v5*/ }
+                            {/* <Route exact path="/"> <MainPage/> </Route> v5*/}
+                            <Route path="/" element={<MainPage/>}/>
+                            <Route path="/comics" element={<ComicsPage/>}/>
+                            <Route path="/comics/:comicId" element={<SingleComicPage/>}/>
+                            <Route path="*" element={<Page404/>}/>
+                        </Routes> {/* </Switch> v5*/}
+                    </Suspense>
                 </main>
             </div>
         </Router>

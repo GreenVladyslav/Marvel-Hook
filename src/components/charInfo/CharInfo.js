@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
 
@@ -12,9 +11,7 @@ import './charInfo.scss';
 
 const CharInfo = (props) => {
 
-    const {comicId} = useParams();
     const [char, setChar] = useState(null);
-    const [comic, setComic] = useState(null)
 
     const {loading, error, getSingleCharacter, clearError, getComic} = useMarvelService();
 
@@ -22,19 +19,6 @@ const CharInfo = (props) => {
         updateChar(); /* первый раз загрузка будет выдавать null */
     }, [props.charId])
 
-    useEffect(() => { 
-        updateComic(); 
-    }, [comicId])
-
-    const updateComic = () => { 
-        clearError();
-        getComic(comicId) 
-            .then(onComicLoaded)
-    }
-
-    const onComicLoaded = (comic) => { 
-        setComic(comic);
-    }
 
     const updateChar = () => { /* когда у нас будет происходить запрос то будем ориентироватьсян на пропс который придет в charId*/
         const {charId} = props;

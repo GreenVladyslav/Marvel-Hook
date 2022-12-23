@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 // Главное не забудьте отписываться от таймаута и ставить зависимости в useEffect чтобы не попасть в бесконечный цикл и не исчерпать лемиты на запросы API
 // и не забывайте про порядок работы функциональных компонентов, что зачем запускается это поможет справится с ошибками если они будут
-
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 // CharInfo. rendomChar   Д.З
 import PropTypes from 'prop-types';
 
@@ -41,6 +41,7 @@ const CharList = (props) => {
     // } тепреь это бесполезный метод 3
 
     const onCharListLoaded = (newCharList) => { /* ! */ /* !!получает новый массив с новыми персонажами */
+
         let ended = false;
         if (newCharList.length < 9) { /* если меньше 9 то скорее пустой массив и закончились дааные */
             ended = true;
@@ -75,31 +76,36 @@ const CharList = (props) => {
             const styleFit = item.thumbnail === imageNotFound ? {objectFit: 'contain'} : {objectFit: 'cover'};
         
             return(
-                <li 
-                    className='char__item'
-                    tabIndex={0}
-                    ref={element => itemRefs.current[index] = element} /* старый способ, я просто элементы по порядку складываю в массив */
-                    key={item.id}
-                    onClick={() => {
-                        props.onCharSelected(item.id)
-                        focusOnItem(index)
-                    }}
-                    onKeyPress={(e) => {
-                        if (e.key === ' ' || e.key === "Enter") {
+                <CSSTransition key={item.id} timeout={500} classNames="char__item">
+                    <li 
+                        className='char__item'
+                        tabIndex={0}
+                        ref={element => itemRefs.current[index] = element} /* старый способ, я просто элементы по порядку складываю в массив */
+                        // key={item.id}
+                        onClick={() => {
                             props.onCharSelected(item.id)
                             focusOnItem(index)
-                        }
-                    }}>
-                        <img src={item.thumbnail} alt={item.name} style={styleFit}/>
-                        <div className="char__name">{item.name}</div>
-                </li>
+                        }}
+                        onKeyPress={(e) => {
+                            if (e.key === ' ' || e.key === "Enter") {
+                                props.onCharSelected(item.id)
+                                focusOnItem(index)
+                            }
+                        }}>
+                            <img src={item.thumbnail} alt={item.name} style={styleFit}/>
+                            <div className="char__name">{item.name}</div>
+                    </li>
+                </CSSTransition>
             )
         });
         // А эта конструкция вынесена для центровки спиннера/ошибки
         return (
             <ul className="char__grid">
-                {elements}
+                <TransitionGroup component={null}>
+                    {elements}
+                </TransitionGroup>         
             </ul>
+
         )
     }
 
@@ -115,7 +121,7 @@ const CharList = (props) => {
     // const content = !(loading || error) ? elements : null; 3 убираю чтобы не было переРендеринга в функциональном компоннете это же не класс  (Null сначала )
     /* условие не обязательное можно и на прямую поместить блок (как мы и сделаем) */
     // const content = errorMessage || spinner || <View char={char} />
-
+   
     return ( 
         <div className="char__list">
                 {errorMessage}
