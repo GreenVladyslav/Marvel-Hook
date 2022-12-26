@@ -12,6 +12,22 @@ const useMarvelService = () => {
         const res = await request(`${_apiBase}characters?limit=9&offset=${offset}&${_apiKey}`);
         return res.data.results.map(_transformCharacter); /* каждый отдельный обьект будет приходить по порядку */
     }
+
+       // Вариант модификации готового метода для поиска по имени. 
+    // Вызывать его можно вот так: getAllCharacters(null, name)
+
+    // const getAllCharacters = async (offset = _baseOffset, name = '') => {
+    //     const res = await request(`${_apiBase}characters?limit=9&offset=${offset}${name ? `&name=${name}` : '' }&${_apiKey}`);
+    //     return res.data.results.map(_transformCharacter);
+    // }
+
+    // Или можно создать отдельный метод для поиска по имени
+
+    const getCharacterByName = async (name) => {
+        const res = await request(`${_apiBase}characters?name=${name}&${_apiKey}`);
+        return res.data.results.map(_transformCharacter);
+    }
+
     /* теперь мы данные будем сохранять в переменную(промежуточный результат) */
     const getSingleCharacter = async (id) => {
         const res = await request(`${_apiBase}characters/${id}?${_apiKey}`);
@@ -50,13 +66,13 @@ const useMarvelService = () => {
             description: comics.description || 'There is no description for this comics',
             pageCount: comics.pageCount ? `${comics.pageCount} pages` : 'No information about the number pages',
             language: comics.textObjects.language || 'en-us',
-            price: comics.prices.price ? `${comics.prices.price}$` : 'not available',
+            price: comics.prices[0].price ? `${comics.prices[0].price}$` : 'not available',
             thumbnail: comics.thumbnail.path + '.' + comics.thumbnail.extension
         }
     }
 
     // посколько это функция (кастомный хук) мы можем вернуть обьект со всем что мне нужно
-    return {loading, error, clearError, getAllCharacters, getSingleCharacter, getAllComics, getComic}
+    return {loading, error, clearError, getAllCharacters, getSingleCharacter, getAllComics, getComic, getCharacterByName}
 }
 
 export default useMarvelService;

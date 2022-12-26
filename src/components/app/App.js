@@ -10,6 +10,8 @@ const Page404 = lazy(() => import('../pages/404')); /* все динамичес
 const MainPage = lazy(() => import('../pages/MainPage')); /* часто заходят по ссылкам и не на главную страницу */
 const ComicsPage = lazy(() => import('../pages/ComicsPage'));
 const SingleComicPage = lazy(() => import('../pages/SingleComicPage/SingleComicPage'));
+const SingleCharacterPage = lazy(() => import('../pages/SingleCharacterPage/SingleCharacterPage'));
+const SinglePage = lazy(() => import('../pages/SinglePage'));
 
 const App = () => {
 
@@ -20,10 +22,11 @@ const App = () => {
                 <main>
                     <Suspense fallback={<Spinner/>}>
                         <Routes> {/* <Switch> v5*/ }
-                            {/* <Route exact path="/"> <MainPage/> </Route> v5*/}
+                            {/* <Route exact path="/"> <MainPage/> </Route> v5*/}   
                             <Route path="/" element={<MainPage/>}/>
                             <Route path="/comics" element={<ComicsPage/>}/>
-                            <Route path="/comics/:comicId" element={<SingleComicPage/>}/>
+                            <Route path="/comics/:id" element={<SinglePage Component={SingleComicPage} dataType="comic" />}/>
+                            <Route path="/characters/:id" element={<SinglePage Component={SingleCharacterPage} dataType="character" />}/>
                             <Route path="*" element={<Page404/>}/>
                         </Routes> {/* </Switch> v5*/}
                     </Suspense>

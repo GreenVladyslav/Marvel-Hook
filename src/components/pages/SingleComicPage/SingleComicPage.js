@@ -1,60 +1,9 @@
-import { useParams, Link } from 'react-router-dom';
-
-import { useState, useEffect } from 'react';
-
-// import PropTypes from 'prop-types';
-
-import Spinner from '../../spinner/Spinner';
-import ErrorMessage from '../../errorMessage/ErrorMessage';
-// import Skeleton from '../../skeleton/Skeleton';
-import useMarvelService from '../../../services/MarvelService';
+import { Link } from 'react-router-dom';
 
 import './singleComicPage.scss';
-// import xMen from '../../resources/img/x-men.png';
+const SingleComicPage = ({data}) => {
 
-const SingleComicPage = () => {
-
-    // const smth = useParams();
-    // console.log(smth); /* получаем comicId: "82970"  (Key/Value) - ключ мы самид даем название в App*/
-
-    const {comicId} = useParams(); /* диструктуризация вытаскивыем  */
-
-    const [comic, setComic] = useState(null)
-
-    const {loading, error, getComic, clearError} = useMarvelService();
-
-    useEffect(() => { 
-        updateComic(); 
-    }, [comicId])
-
-    const updateComic = () => { 
-        clearError();
-        getComic(comicId) 
-            .then(onComicLoaded)
-    }
-
-    const onComicLoaded = (comic) => { 
-        setComic(comic);
-    }
-
-    // const skeleton = comic || loading || error ? null : <Skeleton/>;
-    const errorMessage = error ? <ErrorMessage/> : null;
-    const spinner = loading ? <Spinner/> : null;
-    const content = !(loading || error || !comic) ? <View comic={comic}/> : null;
-
-    return (
-        <>
-            {errorMessage}
-            {spinner}
-            {content}
-        </>
-    )
-}
-
-
-const View = ({comic}) => {
-
-    const {thumbnail, title, description, pageCount, language, price} = comic;
+    const {thumbnail, title, description, pageCount, language, price} = data;
 
     return (
         <div className="single-comic">
